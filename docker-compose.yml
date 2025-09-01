@@ -13,5 +13,19 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  api:
+    image: dockerapicalendario
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/calendario_festivos
+      SPRING_DATASOURCE_USERNAME: festivos_user
+      SPRING_DATASOURCE_PASSWORD: festivos_pass
+
 volumes:
   postgres_data:
