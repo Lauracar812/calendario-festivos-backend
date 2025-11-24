@@ -11,6 +11,7 @@ Backend Java Spring Boot para la gestión de días laborales, festivos y fines d
 - [Tecnologías utilizadas](#tecnologías-utilizadas)
 - [Instalación](#instalación)
 - [Configuración](#configuración)
+- [Despliegue en AWS](#despliegue-en-aws)
 - [Uso de la API](#uso-de-la-api)
   - [Generar calendario laboral](#generar-calendario-laboral)
   - [Consultar calendario completo](#consultar-calendario-completo)
@@ -88,6 +89,56 @@ spring.h2.console.enabled=true
 ```
 
 Para usar PostgreSQL, MySQL, etc., cambia los parámetros según tu base.
+
+---
+
+## 🚀 Despliegue en AWS
+
+Este proyecto incluye un **pipeline de CI/CD completo** para despliegue automatizado en AWS.
+
+### Arquitectura AWS
+
+```
+GitHub → CodePipeline → CodeBuild → ECR → ECS (Fargate) → ALB
+```
+
+### Servicios AWS Utilizados
+
+- **AWS CodePipeline**: Orquestación del pipeline CI/CD
+- **AWS CodeBuild**: Compilación y construcción de imagen Docker
+- **Amazon ECR**: Registro privado de contenedores
+- **Amazon ECS (Fargate)**: Ejecución de contenedores serverless
+- **Application Load Balancer**: Balanceo de carga
+- **Amazon RDS**: Base de datos PostgreSQL
+- **CloudWatch**: Logging y monitoreo
+
+### Inicio Rápido
+
+1. **Configurar infraestructura base**
+   ```powershell
+   # Windows PowerShell
+   .\aws-scripts\setup-infrastructure.ps1
+   ```
+
+2. **Seguir la guía completa**
+   - Ver [AWS-DEPLOYMENT-GUIDE.md](AWS-DEPLOYMENT-GUIDE.md) para instrucciones detalladas
+   - Ver [ARQUITECTURA-PIPELINE.md](ARQUITECTURA-PIPELINE.md) para entender la arquitectura
+
+### Archivos de Configuración AWS
+
+- `buildspec.yml`: Configuración de CodeBuild
+- `taskdef.json`: Task Definition para ECS
+- `appspec.yml`: Especificación de despliegue
+- `aws-scripts/`: Scripts de automatización
+- `.env.example`: Variables de entorno de ejemplo
+
+### Evidencias de Despliegue
+
+Para validar el despliegue exitoso, consulta las guías:
+- Capturas de pantalla del pipeline
+- Logs de CloudWatch
+- Métricas de ECS
+- Pruebas de la API desplegada
 
 ---
 

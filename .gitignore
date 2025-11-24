@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### AWS ###
+.env
+*.pem
+*.key
+aws-config/
+imagedefinitions.json
+taskdef.json.bak
+
+### Logs ###
+*.log
+logs/

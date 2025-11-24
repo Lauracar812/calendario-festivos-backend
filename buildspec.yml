@@ -1,0 +1,71 @@
+version: 0.2
+
+# BuildSpec para AWS CodeBuild
+# Este archivo define las fases de construcción de la aplicación Spring Boot
+# y la creación de la imagen Docker que se desplegará en ECS
+
+env:
+  variables:
+    JAVA_HOME: "/usr/lib/jvm/java-17-openjdk"
+    AWS_DEFAULT_REGION: "us-east-2"
+    AWS_ACCOUNT_ID: "110412263170"
+    IMAGE_REPO_NAME: "calendario-festivos-backend"
+    IMAGE_TAG: "latest"
+  parameter-store:
+    # Opcional: Variables sensibles desde AWS Systems Manager Parameter Store
+    # DB_PASSWORD: /calendario-festivos/db/password
+    # DB_USERNAME: /calendario-festivos/db/username
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+    commands:
+      - echo "Instalando dependencias..."
+      - echo "Java version:"
+      - java -version
+      - echo "Maven version:"
+      - mvn -version
+
+  pre_build:
+    commands:
+      - echo "Fase pre-build iniciada el $(date)"
+      - echo "Iniciando sesión en Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo "Repository URI = $REPOSITORY_URI"
+      - echo "Image Tag = $IMAGE_TAG"
+
+  build:
+    commands:
+      - echo "Fase de construcción iniciada el $(date)"
+      - echo "Compilando la aplicación con Maven..."
+      - mvn clean package -DskipTests
+      - echo "Construcción de la imagen Docker..."
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:latest
+
+  post_build:
+    commands:
+      - echo "Fase post-build iniciada el $(date)"
+      - echo "Subiendo la imagen Docker a ECR..."
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
+      - echo "Creando imagedefinitions.json para ECS..."
+      - printf '[{"name":"calendario-festivos-container","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
+      - echo "Build completado exitosamente el $(date)"
+
+artifacts:
+  files:
+    - imagedefinitions.json
+    - appspec.yml
+    - taskdef.json
+  discard-paths: yes
+
+cache:
+  paths:
+    - '/root/.m2/**/*'

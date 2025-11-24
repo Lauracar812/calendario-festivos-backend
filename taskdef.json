@@ -1,0 +1,71 @@
+{
+  "family": "calendario-festivos-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::110412263170:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::110412263170:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "calendario-festivos-container",
+      "image": "110412263170.dkr.ecr.us-east-2.amazonaws.com/calendario-festivos-backend:latest",
+      "cpu": 512,
+      "memory": 1024,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "prod"
+        },
+        {
+          "name": "SPRING_DATASOURCE_URL",
+          "value": "jdbc:postgresql://YOUR_RDS_ENDPOINT:5432/calendario_festivos"
+        },
+        {
+          "name": "SPRING_DATASOURCE_USERNAME",
+          "value": "festivos_user"
+        },
+        {
+          "name": "SPRING_JPA_HIBERNATE_DDL_AUTO",
+          "value": "validate"
+        },
+        {
+          "name": "SPRING_JPA_SHOW_SQL",
+          "value": "false"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "SPRING_DATASOURCE_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:110412263170:secret:calendario-festivos/db-password-Me1hX1"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/calendario-festivos",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -f http://localhost:8080/ || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}

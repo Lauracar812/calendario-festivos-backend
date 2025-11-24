@@ -1,0 +1,28 @@
+version: 0.0
+# AppSpec para AWS CodeDeploy con ECS
+# Define cómo se desplegará la aplicación en el cluster ECS
+
+Resources:
+  - TargetService:
+      Type: AWS::ECS::Service
+      Properties:
+        TaskDefinition: "<TASK_DEFINITION>"
+        LoadBalancerInfo:
+          ContainerName: "calendario-festivos-container"
+          ContainerPort: 8080
+        PlatformVersion: "LATEST"
+        NetworkConfiguration:
+          AwsvpcConfiguration:
+            Subnets:
+              - "subnet-XXXXXXXX"  # Reemplazar con tus subnet IDs
+              - "subnet-YYYYYYYY"
+            SecurityGroups:
+              - "sg-XXXXXXXXX"     # Reemplazar con tu security group ID
+            AssignPublicIp: "ENABLED"
+
+Hooks:
+  - BeforeInstall: "LambdaFunctionToValidateBeforeInstall"
+  - AfterInstall: "LambdaFunctionToValidateAfterInstall"
+  - AfterAllowTestTraffic: "LambdaFunctionToValidateAfterTestTrafficStarts"
+  - BeforeAllowTraffic: "LambdaFunctionToValidateBeforeAllowingProductionTraffic"
+  - AfterAllowTraffic: "LambdaFunctionToValidateAfterAllowingProductionTraffic"
