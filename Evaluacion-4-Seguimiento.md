@@ -27,7 +27,7 @@ http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com
 - **Repositorio:** https://github.com/Lauracar812/calendario-festivos-backend
 - **Aplicación:** API REST - Calendario de Festivos (Spring Boot 3.5.5, Java 17)
 - **Región AWS:** us-east-2 (Ohio)
-- **Fecha:** 25 de noviembre de 2025
+- **Fecha:** 24 de noviembre de 2025
 
 ---
 
@@ -444,5 +444,5 @@ SELECT * FROM festivo WHERE id_pais = 1;
 
 ---
 
-**Fecha de entrega:** 25 de noviembre de 2025  
+**Fecha de entrega:** 24 de noviembre de 2025  
 **Estado final:** ✅ API desplegada y funcionando correctamente
