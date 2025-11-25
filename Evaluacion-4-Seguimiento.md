@@ -329,14 +329,90 @@ Imagen optimizada:
 ## Prueba de Funcionamiento
 
 ### Acceso Público a la API
-**URL:** http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com
+**URL Base:** http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com
 
-**Prueba desde terminal:**
+### 🧪 Endpoints Disponibles y Ejemplos
+
+#### 1. Endpoint Principal
 ```bash
-curl http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com
+curl http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com/
+```
+**Respuesta:**
+```
+Api rest funcionando
 ```
 
-**Respuesta esperada:** Página de Spring Boot o respuesta JSON de la API
+#### 2. Listar Festivos de un País
+```bash
+curl http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com/api/calendario/festivos/1/2025
+```
+**Descripción:** Obtiene festivos de Colombia (país ID=1) para el año 2025
+
+#### 3. Verificar si una Fecha es Festivo
+```bash
+# Verificar 25 de diciembre (Navidad)
+curl http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com/api/calendario/verificar/1/2025/12/25
+
+# Verificar 15 de noviembre (día normal)
+curl http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com/api/calendario/verificar/1/2025/11/15
+```
+**Respuestas posibles:** `"Es festivo"` o `"No es festivo"`
+
+#### 4. Generar Calendario Laboral
+```bash
+curl -X POST http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com/api/calendario/generar/1/2025
+```
+**Respuesta:**
+```
+true
+```
+**Descripción:** Genera el calendario completo del año 2025 para Colombia (365 días)
+
+#### 5. Obtener Calendario Completo
+```bash
+curl http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com/api/calendario/listar/1/2025
+```
+**Respuesta:** JSON con 365 objetos
+```json
+[
+  {
+    "id": 1,
+    "fecha": "2025-01-01",
+    "tipo": "LABORAL",
+    "descripcion": "miércoles"
+  },
+  {
+    "id": 4,
+    "fecha": "2025-01-04",
+    "tipo": "FIN_SEMANA",
+    "descripcion": "sábado"
+  },
+  ...
+]
+```
+
+### 📊 Datos en Base de Datos
+
+#### Países Disponibles
+```sql
+SELECT * FROM pais;
+```
+| ID | Nombre         |
+|----|----------------|
+| 1  | Colombia       |
+| 2  | México         |
+| 3  | Estados Unidos |
+
+#### Festivos de Colombia (2025)
+```sql
+SELECT * FROM festivo WHERE id_pais = 1;
+```
+| ID | Nombre                     | Día | Mes |
+|----|----------------------------|-----|-----|
+| 1  | Año Nuevo                  | 1   | 1   |
+| 2  | Día del Trabajo            | 1   | 5   |
+| 3  | Independencia de Colombia  | 20  | 7   |
+| 4  | Navidad                    | 25  | 12  |
 
 ---
 
