@@ -23,7 +23,7 @@ http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com
 
 ## Información del Proyecto
 
-- **Estudiante:** Laura Carolina Carodona
+- **Estudiante:** Laura Marcela Cardona Rojas
 - **Repositorio:** https://github.com/Lauracar812/calendario-festivos-backend
 - **Aplicación:** API REST - Calendario de Festivos (Spring Boot 3.5.5, Java 17)
 - **Región AWS:** us-east-2 (Ohio)
