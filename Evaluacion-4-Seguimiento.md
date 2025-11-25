@@ -348,6 +348,25 @@ curl http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com/api/c
 ```
 **Descripción:** Obtiene festivos de Colombia (país ID=1) para el año 2025
 
+**Respuesta:**
+```json
+[
+  {"fecha":"2025-01-01","festivo":"Año nuevo"},
+  {"fecha":"2025-01-06","festivo":"Santos Reyes"},
+  {"fecha":"2025-03-19","festivo":"San José"},
+  {"fecha":"2025-05-01","festivo":"Día del Trabajo"},
+  {"fecha":"2025-06-29","festivo":"San Pedro y San Pablo"},
+  {"fecha":"2025-07-20","festivo":"Independencia Colombia"},
+  {"fecha":"2025-08-07","festivo":"Batalla de Boyacá"},
+  {"fecha":"2025-08-15","festivo":"Asunción de la Virgen"},
+  {"fecha":"2025-10-12","festivo":"Día de la Raza"},
+  {"fecha":"2025-11-01","festivo":"Todos los santos"},
+  {"fecha":"2025-11-11","festivo":"Independencia de Cartagena"},
+  {"fecha":"2025-12-08","festivo":"Inmaculada Concepción"},
+  {"fecha":"2025-12-25","festivo":"Navidad"}
+]
+```
+
 #### 3. Verificar si una Fecha es Festivo
 ```bash
 # Verificar 25 de diciembre (Navidad)
@@ -407,12 +426,31 @@ SELECT * FROM pais;
 ```sql
 SELECT * FROM festivo WHERE id_pais = 1;
 ```
-| ID | Nombre                     | Día | Mes |
-|----|----------------------------|-----|-----|
-| 1  | Año Nuevo                  | 1   | 1   |
-| 2  | Día del Trabajo            | 1   | 5   |
-| 3  | Independencia de Colombia  | 20  | 7   |
-| 4  | Navidad                    | 25  | 12  |
+**Total: 19 festivos**
+- 13 festivos de fecha fija
+- 6 festivos calculados por Pascua
+
+| Nombre                     | Fecha       | Tipo |
+|----------------------------|-------------|------|
+| Año nuevo                  | 01 Ene      | Fijo |
+| Santos Reyes               | 06 Ene      | Fijo |
+| San José                   | 19 Mar      | Fijo |
+| Jueves Santo               | (Calculado) | Pascua |
+| Viernes Santo              | (Calculado) | Pascua |
+| Domingo de Pascua          | (Calculado) | Pascua |
+| Día del Trabajo            | 01 May      | Fijo |
+| Ascensión del Señor        | (Calculado) | Pascua + Puente |
+| Corpus Christi             | (Calculado) | Pascua + Puente |
+| Sagrado Corazón de Jesús   | (Calculado) | Pascua + Puente |
+| San Pedro y San Pablo      | 29 Jun      | Fijo |
+| Independencia Colombia     | 20 Jul      | Fijo |
+| Batalla de Boyacá          | 07 Ago      | Fijo |
+| Asunción de la Virgen      | 15 Ago      | Fijo |
+| Día de la Raza             | 12 Oct      | Fijo |
+| Todos los santos           | 01 Nov      | Fijo |
+| Independencia de Cartagena | 11 Nov      | Fijo |
+| Inmaculada Concepción      | 08 Dic      | Fijo |
+| Navidad                    | 25 Dic      | Fijo |
 
 ---
 
