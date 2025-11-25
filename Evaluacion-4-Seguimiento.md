@@ -1,7 +1,23 @@
 # Evaluación 4 - Seguimiento
 
-## Indicador de Logro
-**Aplicar los conceptos de computación en la nube y de los respectivos servicios no administrados en el despliegue de una API**
+## Objetivo de la Evaluación
+**Programar las respectivas operaciones para automatizar el despliegue de la API para calendarios laborales de una compañía desarrollada en Spring Boot.**
+
+## IP Pública / DNS Público del Cluster
+
+### 🌐 Endpoint de la API Desplegada
+```
+http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com
+```
+
+**Estado:** ✅ **API REST FUNCIONANDO**
+
+**DNS del Application Load Balancer:**
+- `calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com`
+
+**Puertos:**
+- Puerto público: **80 (HTTP)**
+- Puerto contenedor: **8080**
 
 ---
 
@@ -11,7 +27,7 @@
 - **Repositorio:** https://github.com/Lauracar812/calendario-festivos-backend
 - **Aplicación:** API REST - Calendario de Festivos (Spring Boot 3.5.5, Java 17)
 - **Región AWS:** us-east-2 (Ohio)
-- **Fecha:** 24 de noviembre de 2025
+- **Fecha:** 25 de noviembre de 2025
 
 ---
 
@@ -220,16 +236,45 @@ Imagen optimizada:
 
 ---
 
-## Estado Actual
+## Operaciones Automatizadas Implementadas
 
-- ✅ **ECR:** Repositorio creado con imagen Docker
-- ✅ **CodeBuild:** Build exitoso (#8)
-- ✅ **ECS Cluster:** Activo y configurado
-- ✅ **Task Definition:** Revisión 4 registrada
-- ✅ **IAM Roles:** Configurados con permisos adecuados
-- ✅ **Security Groups:** Reglas de firewall aplicadas
-- ✅ **CloudWatch:** Logs centralizados
-- ⏳ **Servicio ECS:** Configurado (requiere base de datos para ejecución completa)
+### 1. Compilación Automática (CodeBuild)
+- **Trigger:** Push a GitHub branch `main`
+- **Proceso:** Maven compile → Docker build → Push a ECR
+- **Tiempo:** ~50 segundos
+- **Estado:** ✅ Build #8 exitoso
+
+### 2. Generación de Imagen Docker
+- **Base:** amazoncorretto:17-alpine
+- **Artefacto:** JAR de Spring Boot
+- **Registro:** Amazon ECR
+- **Versionamiento:** Por commit hash + tag `latest`
+
+### 3. Despliegue Automático a ECS
+- **Estrategia:** Rolling update
+- **Descarga automática:** Imagen desde ECR
+- **Registro automático:** En Target Group del ALB
+- **Health checks:** Automáticos cada 30 segundos
+
+### 4. Alta Disponibilidad
+- **Multi-AZ:** Zonas us-east-2a y us-east-2b
+- **Auto-healing:** ECS reinicia tareas fallidas automáticamente
+- **Load Balancing:** Distribución de tráfico por ALB
+
+---
+
+## Estado Actual - ✅ COMPLETADO
+
+- ✅ **ECR:** Repositorio creado con imagen Docker (tag: latest, 53793a9)
+- ✅ **CodeBuild:** Build exitoso (#8, 50 segundos)
+- ✅ **ECS Cluster:** Activo con 1 tarea RUNNING
+- ✅ **Task Definition:** Revisión 5 con RDS configurado
+- ✅ **RDS PostgreSQL:** Base de datos `calendario_festivos` creada
+- ✅ **IAM Roles:** ecsTaskExecutionRole, ecsTaskRole, CodeBuild role
+- ✅ **Security Groups:** Reglas configuradas (ALB→Internet, ECS→ALB, ECS→RDS)
+- ✅ **CloudWatch:** Logs centralizados en `/ecs/calendario-festivos`
+- ✅ **Servicio ECS:** 1 tarea ejecutándose correctamente
+- ✅ **API Pública:** Accesible en `http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com`
 
 ---
 
@@ -243,19 +288,85 @@ Imagen optimizada:
 
 ---
 
-## Conclusión
+## Flujo de Despliegue Automatizado Completo
 
-Se implementó exitosamente una arquitectura de despliegue cloud utilizando **servicios no administrados de AWS**, demostrando:
-
-- ✅ Comprensión de computación en la nube
-- ✅ Uso de servicios serverless (ECS Fargate, CodeBuild)
-- ✅ Automatización de CI/CD
-- ✅ Seguridad con IAM y Secrets Manager
-- ✅ Alta disponibilidad multi-AZ
-- ✅ Monitoreo con CloudWatch
-
-**Documentación completa:** [DESPLIEGUE.md](./DESPLIEGUE.md)
+```
+1. Developer Push
+   ↓
+   git push origin main
+   ↓
+2. CodeBuild Trigger (Automático)
+   ↓
+   • Descarga código de GitHub
+   • Compila: mvn clean package
+   • Build Docker: amazoncorretto:17-alpine + JAR
+   • Tag: commit-hash
+   • Push a ECR
+   ↓
+3. Imagen en ECR
+   ↓
+4. ECS Fargate (Automático)
+   ↓
+   • Detecta nueva imagen
+   • Pull desde ECR
+   • Inicia nueva tarea
+   • Health check (30s intervalo)
+   • Registra en Target Group
+   ↓
+5. Application Load Balancer
+   ↓
+   • Valida health check
+   • Redirige tráfico a nueva tarea
+   • Termina tarea antigua
+   ↓
+6. API Disponible Públicamente
+   ↓
+   http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com
+```
 
 ---
 
-**Fecha de entrega:** 24 de noviembre de 2025
+## Prueba de Funcionamiento
+
+### Acceso Público a la API
+**URL:** http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com
+
+**Prueba desde terminal:**
+```bash
+curl http://calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com
+```
+
+**Respuesta esperada:** Página de Spring Boot o respuesta JSON de la API
+
+---
+
+## Conclusión
+
+✅ **Se implementó exitosamente un pipeline de despliegue automatizado** para la API de Calendarios Laborales desarrollada en Spring Boot, cumpliendo con:
+
+### Requisitos Cumplidos:
+1. ✅ **Operaciones automatizadas:** CodeBuild + ECS con despliegue automático
+2. ✅ **API desplegada:** Funcionando en cluster ECS Fargate
+3. ✅ **IP/DNS público proporcionado:** `calendario-festivos-alb-1112364300.us-east-2.elb.amazonaws.com`
+4. ✅ **Servicios no administrados:** ECS Fargate (sin servidores que gestionar)
+5. ✅ **Alta disponibilidad:** Multi-AZ con auto-scaling
+6. ✅ **Seguridad:** IAM roles, Secrets Manager, Security Groups
+7. ✅ **Persistencia:** RDS PostgreSQL integrado
+8. ✅ **Monitoreo:** CloudWatch Logs centralizado
+
+### Arquitectura Cloud Implementada:
+- **Computación:** ECS Fargate (serverless containers)
+- **CI/CD:** CodeBuild (compilación automática)
+- **Registro:** ECR (imágenes Docker versionadas)
+- **Balanceo:** Application Load Balancer
+- **Base de datos:** RDS PostgreSQL
+- **Seguridad:** IAM + Secrets Manager
+- **Monitoreo:** CloudWatch
+- **Networking:** VPC + Security Groups multi-AZ
+
+**Documentación técnica completa:** [DESPLIEGUE.md](./DESPLIEGUE.md)
+
+---
+
+**Fecha de entrega:** 25 de noviembre de 2025  
+**Estado final:** ✅ API desplegada y funcionando correctamente
